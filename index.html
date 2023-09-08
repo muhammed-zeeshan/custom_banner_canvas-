@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/510/fabric.min.js"></script>
+    <style>
+        #canvas {
+            border: 1px solid black;
+            margin: 20px 0;
+        }
+        #link {
+            display: inline-block;
+            background: #cccccc85;
+            padding: 14px 30px;
+            margin: 38px 0 0;
+            font-size: 16px;
+            text-decoration: none;
+            color: #000;
+            font-weight: 600;
+            border: 1px solid;
+        }
+        .main {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <div>
+            <input type="file" id="fileinput" accept="image/*">
+            <input type="text" id="textinput" placeholder="Add Text">
+            <input type="number" id="sizeinput" placeholder="Font Size">
+            <input type="color" id="colorinput">
+            <button onclick="addImage()">Add</button>
+        </div>
+        <canvas id="canvas"></canvas>
+        <a id="link" class="icon fb" href="" download="canvas.png">Download</a>
+    </div>
+    <script>
+        // Initiate a canvas instance
+        var canvas = new fabric.Canvas("canvas");
+        canvas.setWidth(500);
+        canvas.setHeight(250);
+        function addImage() {
+            var addText = document.querySelector('#textinput').value;
+            var fontSize = document.querySelector('#sizeinput').value;
+            var color = document.querySelector('#colorinput').value;
+            var text = new fabric.Text(addText, {
+                left: 100,
+                top: 100,
+                fontSize: fontSize,
+                fill: color
+            });
+            canvas.add(text);
+        }
+        document.getElementById('fileinput').onchange = function handleImage(e) {
+            var reader = new FileReader();
+            reader.onload = function (event) {
+                var imgObj = new Image();
+                imgObj.src = event.target.result;
+                imgObj.onload = function () {
+                    var image = new fabric.Image(imgObj);
+                    image.set({
+                        angle: 0,
+                        padding: 10,
+                        cornersize: 10,
+                    });
+                    image.scaleToHeight(300);
+                    image.scaleToWidth(300);
+                    canvas.centerObject(image);
+                    canvas.add(image);
+                    canvas.renderAll();
+                }
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        }
+        var imageSaver = document.getElementById('link');
+        imageSaver.addEventListener('click', saveImage, false);
+        function saveImage(e) {
+            this.href = canvas.toDataURL({
+                format: 'png',
+                quality: 0.8
+            });
+            this.download = 'canvas.png'
+        }
+    </script>
+</body>
+
+</html>
